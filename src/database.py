@@ -47,7 +47,7 @@ class Database:
         if id in os.listdir(os.path.join(self.path, guild)):
             return False
         else:
-            with open(os.path.join(os.path.join(self.path, guild), id), "w") as user:
+            with open(os.path.join(self.path, guild, id), "w") as user:
                 user.write("0")
             return True
     
@@ -65,7 +65,7 @@ class Database:
         """
         id = str(id)
         guild = str(guild)
-        with open(os.path.join(os.path.join(self.path, guild), id), "w") as user:
+        with open(os.path.join(self.path, guild, id), "w") as user:
             current_bytes = int(user.read())
             total = current_bytes + bytes
             user.write(str(total))
@@ -84,7 +84,7 @@ class Database:
         """
         id = str(id)
         guild = str(guild)
-        with open(os.path.join(os.path.join(self.path, guild), id), "w") as user:
+        with open(os.path.join(self.path, guild, id), "w") as user:
             bytes = int(user.read())
         return bytes
     
@@ -177,7 +177,7 @@ class AsyncDatabase:
             os.mkdir(os.path.join(self.path, id))
             return True
     
-    async def add_user(self, id: int | str, guild: int | str) -> bool:
+    def add_user(self, id: int | str, guild: int | str) -> bool:
         """
         Add a user to database of a guild
 
@@ -193,11 +193,11 @@ class AsyncDatabase:
         if id in os.listdir(os.path.join(self.path, guild)):
             return False
         else:
-            async with open(os.path.join(os.path.join(self.path, guild), id), "w") as user:
+            with open(os.path.join(self.path, guild, id), "w") as user:
                 user.write("0")
             return True
     
-    async def add_bytes(self, bytes: int, id: int | str, guild: int | str) -> int:
+    def add_bytes(self, bytes: int, id: int | str, guild: int | str) -> int:
         """
         Add some bytes to user's database
 
@@ -211,13 +211,13 @@ class AsyncDatabase:
         """
         id = str(id)
         guild = str(guild)
-        async with open(os.path.join(os.path.join(self.path, guild), id), "w") as user:
+        with open(os.path.join(self.path, guild, id), "w") as user:
             current_bytes = int(user.read())
             total = current_bytes + bytes
             user.write(str(total))
         return total
     
-    async def check_bytes(self, id: int | str, guild: int | str) -> int:
+    def check_bytes(self, id: int | str, guild: int | str) -> int:
         """
         Check the amount of bytes the user has now
 
@@ -230,7 +230,7 @@ class AsyncDatabase:
         """
         id = str(id)
         guild = str(guild)
-        async with open(os.path.join(os.path.join(self.path, guild), id), "w") as user:
+        with open(os.path.join(self.path, guild, id), "w") as user:
             bytes = int(user.read())
         return bytes
     
@@ -270,7 +270,7 @@ class AsyncDatabase:
         """
         return ((bytes / 1024) / 1024) / 1024
 
-    async def auto(self, msg: str, user: int | str, guild: int | str) -> int:
+    def auto(self, msg: str, user: int | str, guild: int | str) -> int:
         """
         Automatically add guilds if not in database, add user
         if not in database of the guild and add bytes to the
@@ -290,5 +290,5 @@ class AsyncDatabase:
         if guild not in os.listdir(self.path):
             self.add_guild(guild)
         if user not in os.listdir(os.path.join(self.path, guild)):
-            await self.add_user(user, guild)
-        return await self.add_bytes(bytes, user, guild)
+            self.add_user(user, guild)
+        return self.add_bytes(bytes, user, guild)
