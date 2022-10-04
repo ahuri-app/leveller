@@ -65,7 +65,7 @@ class Database:
         """
         id = str(id)
         guild = str(guild)
-        with open(os.path.join(self.path, guild, id), "w") as user:
+        with open(os.path.join(self.path, guild, id), "w+") as user:
             current_bytes = int(user.read())
             total = current_bytes + bytes
             user.write(str(total))
@@ -84,7 +84,7 @@ class Database:
         """
         id = str(id)
         guild = str(guild)
-        with open(os.path.join(self.path, guild, id), "w") as user:
+        with open(os.path.join(self.path, guild, id), "r") as user:
             bytes = int(user.read())
         return bytes
     
@@ -211,7 +211,7 @@ class AsyncDatabase:
         """
         id = str(id)
         guild = str(guild)
-        with open(os.path.join(self.path, guild, id), "w") as user:
+        with open(os.path.join(self.path, guild, id), "w+") as user:
             current_bytes = int(user.read())
             total = current_bytes + bytes
             user.write(str(total))
@@ -230,7 +230,7 @@ class AsyncDatabase:
         """
         id = str(id)
         guild = str(guild)
-        with open(os.path.join(self.path, guild, id), "w") as user:
+        with open(os.path.join(self.path, guild, id), "r") as user:
             bytes = int(user.read())
         return bytes
     
