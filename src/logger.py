@@ -10,9 +10,9 @@ class Logger:
         self.path = path
         self.utc = utc
         if self.utc:
-            self.loggerpath = os.path.join(self.path, str(datetime.utcnow()))
+            self.loggerpath = os.path.join(self.path, str(datetime.utcnow())+".txt")
         else:
-            self.loggerpath = os.path.join(self.path, str(datetime.now()))
+            self.loggerpath = os.path.join(self.path, str(datetime.now())+".txt")
 
     def log(self, text: str = "", p: bool = True) -> str:
         """
@@ -25,7 +25,7 @@ class Logger:
         Returns:
             str: the string you specified
         """
-        with open(os.path.join(self.path, self.loggerpath), "a") as logfile:
+        with open(self.loggerpath, "a") as logfile:
             logfile.write(text+"\n")
         if p:
             print(text)
@@ -40,9 +40,9 @@ class AsyncLogger:
         self.path = path
         self.utc = utc
         if self.utc:
-            self.loggerpath = os.path.join(self.path, str(datetime.utcnow()))
+            self.loggerpath = os.path.join(self.path, str(datetime.utcnow())+".txt")
         else:
-            self.loggerpath = os.path.join(self.path, str(datetime.now()))
+            self.loggerpath = os.path.join(self.path, str(datetime.now())+".txt")
 
     async def log(self, text: str = "", p: bool = True) -> str:
         """
