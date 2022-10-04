@@ -1,6 +1,6 @@
 class errors:
     """
-    Base class for all errors.
+    A class that contains all errors.
     """
     class BotTokenDetected(Exception):
         def __init__(self, message: str = "Returned output contains bot token.") -> None:
