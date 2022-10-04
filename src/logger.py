@@ -9,6 +9,10 @@ class Logger:
     def __init__(self, path: str = "logs", utc: bool = False) -> None:
         self.path = path
         self.utc = utc
+        if self.utc:
+            self.loggerpath = os.path.join(self.path, str(datetime.utcnow()))
+        else:
+            self.loggerpath = os.path.join(self.path, str(datetime.now()))
 
     def log(self, text: str = "", p: bool = True) -> str:
         """
@@ -21,11 +25,7 @@ class Logger:
         Returns:
             str: the string you specified
         """
-        if self.utc:
-            now = str(datetime.utcnow())
-        else:
-            now = str(datetime.now())
-        with open(os.path.join(self.path, now), "a") as logfile:
+        with open(os.path.join(self.path, self.loggerpath), "a") as logfile:
             logfile.write(text+"\n")
         if p:
             print(text)
@@ -39,6 +39,10 @@ class AsyncLogger:
     def __init__(self, path: str = "logs", utc: bool = False) -> None:
         self.path = path
         self.utc = utc
+        if self.utc:
+            self.loggerpath = os.path.join(self.path, str(datetime.utcnow()))
+        else:
+            self.loggerpath = os.path.join(self.path, str(datetime.now()))
 
     async def log(self, text: str = "", p: bool = True) -> str:
         """
@@ -51,11 +55,7 @@ class AsyncLogger:
         Returns:
             str: the string you specified
         """
-        if self.utc:
-            now = str(datetime.utcnow())
-        else:
-            now = str(datetime.now())
-        async with open(os.path.join(self.path, now), "a") as logfile:
+        async with open(self.loggerpath, "a") as logfile:
             logfile.write(text+"\n")
         if p:
             print(text)
