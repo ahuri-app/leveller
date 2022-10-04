@@ -161,3 +161,15 @@ def system(execstr: str) -> str:
         str: printed output
     """
     return subprocess.getoutput(execstr)
+
+def blen(string: str) -> int:
+    """
+    Returns length in bytes of the string passed.
+
+    Args:
+        string (str): the string
+
+    Returns:
+        int: length in bytes
+    """
+    return len(string.encode("utf-8"))
