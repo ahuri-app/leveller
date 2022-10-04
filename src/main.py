@@ -29,11 +29,23 @@ bot = commands.Bot(
 token = os.getenv("BOT_TOKEN", "env variable not set")
 
 @bot.event
-async def on_ready():
+async def on_ready() -> None:
+    """
+    This is called when the bot is ready.
+    """
     print(f"Connected to Discord!\nLogged in as {bot.user}.")
 
 @bot.event
-async def on_message(message):
+async def on_message(message: nextcord.Message) -> None:
+    """
+    This is called when the bot receives a message.
+
+    Args:
+        message (nextcord.Message): the message
+
+    Raises:
+        errors.BotTokenDetected: when bot token is detected in eval, exec or system commands 
+    """
     if message.author == bot.user:
         return
     
@@ -85,16 +97,15 @@ async def on_message(message):
                 returned = await bot.loop.run_in_executor(None, functools.partial(eval, evalstr, globals(), locals()))
                 returned_as_str = str(returned)
                 if token.lower() in returned_as_str.lower():
-                    raise errors.BotTokenInEval
+                    raise errors.BotTokenDetected
             except Exception as e:
-                #returned = repr(e)
                 returned = "".join(format_exception(e, e, e.__traceback__))
                 returned_as_str = str(returned)
             tt = time.monotonic() - t
             mstaken = round(tt*1000, 2)
             staken = round(tt, 2)
             try:
-                    await main_message.edit("Done!", embed=nextcord.Embed(title=f"Eval by {message.author}", color=nextcord.Colour.green()).add_field(name="📥 Input:", value=f"```py\n{evalstr}\n```").add_field(name="📤 Output:", value=f"```py\n{returned if ''.join(''.join(returned_as_str.strip().splitlines()).split()) != '' else 'No output.'}\n```**Return type:** {type(returned)}\n**Time Taken:** {mstaken}ms ({staken}s)").set_footer(text=f"Python {sys.version}"))
+                await main_message.edit("Done!", embed=nextcord.Embed(title=f"Eval by {message.author}", color=nextcord.Colour.green()).add_field(name="📥 Input:", value=f"```py\n{evalstr}\n```").add_field(name="📤 Output:", value=f"```py\n{returned if ''.join(''.join(returned_as_str.strip().splitlines()).split()) != '' else 'No output.'}\n```**Return type:** {type(returned)}\n**Time Taken:** {mstaken}ms ({staken}s)").set_footer(text=f"Python {sys.version}"))
             except nextcord.errors.HTTPException:
                 try:
                     await main_message.edit("Done!", embeds=[nextcord.Embed(title=f"Eval by {message.author}", color=nextcord.Colour.green()).add_field(name="📥 Input:", value=f"```py\n{evalstr}\n```").add_field(name="📤 Output:", value=f"```\nCannot fit the output in this field. Check the embed below.\n```**Return type:** {type(returned)}\n**Time Taken:** {mstaken}ms ({staken}s)").set_footer(text=f"Python {sys.version}"), nextcord.Embed(title="📤 Output:", description=f"```py\n{returned if ''.join(''.join(returned_as_str.strip().splitlines()).split()) != '' else 'No output.'}\n```", color = nextcord.Colour.green())])
@@ -116,8 +127,8 @@ async def on_message(message):
                 "bot": bot,
                 "message": message,
                 "main_message": main_message,
-                "local": locals(),
-                "global": globals()
+                "_locals_": locals(),
+                "_globals_": globals()
             }
             try:
                 old_stdout = sys.stdout
@@ -128,7 +139,7 @@ async def on_message(message):
                 returned = f"{redirected_output.getvalue()}\n-- {obj}\n"
                 returned_as_str = str(returned)
                 if token.lower() in returned_as_str.lower():
-                    raise errors.BotTokenInEval
+                    raise errors.BotTokenDetected
             except Exception as e:
                 obj = e
                 returned = "".join(format_exception(e, e, e.__traceback__))
@@ -137,7 +148,7 @@ async def on_message(message):
             mstaken = round(tt*1000, 2)
             staken = round(tt, 2)
             try:
-                    await main_message.edit("Done!", embed=nextcord.Embed(title=f"Exec by {message.author}", color=nextcord.Colour.green()).add_field(name="📥 Input:", value=f"```py\n{execstr}\n```").add_field(name="📤 Output:", value=f"```py\n{returned if ''.join(''.join(returned_as_str.strip().splitlines()).split()) != '' else 'No output.'}\n```**Return type:** {type(obj)}\n**Time Taken:** {mstaken}ms ({staken}s)").set_footer(text=f"Python {sys.version}"))
+                await main_message.edit("Done!", embed=nextcord.Embed(title=f"Exec by {message.author}", color=nextcord.Colour.green()).add_field(name="📥 Input:", value=f"```py\n{execstr}\n```").add_field(name="📤 Output:", value=f"```py\n{returned if ''.join(''.join(returned_as_str.strip().splitlines()).split()) != '' else 'No output.'}\n```**Return type:** {type(obj)}\n**Time Taken:** {mstaken}ms ({staken}s)").set_footer(text=f"Python {sys.version}"))
             except nextcord.errors.HTTPException:
                 try:
                     await main_message.edit("Done!", embeds=[nextcord.Embed(title=f"Exec by {message.author}", color=nextcord.Colour.green()).add_field(name="📥 Input:", value=f"```py\n{execstr}\n```").add_field(name="📤 Output:", value=f"```\nCannot fit the output in this field. Check the embed below.\n```**Return type:** {type(obj)}\n**Time Taken:** {mstaken}ms ({staken}s)").set_footer(text=f"Python {sys.version}"), nextcord.Embed(title="📤 Output:", description=f"```py\n{returned if ''.join(''.join(returned_as_str.strip().splitlines()).split()) != '' else 'No output.'}\n```", color = nextcord.Colour.green())])
@@ -147,6 +158,42 @@ async def on_message(message):
                     with open("./outputs/"+filename, "w", encoding="utf-8") as outputfile:
                         outputfile.write(returned_as_str)
                     await main_message.edit("Done!", embed=nextcord.Embed(title=f"Exec by {message.author}", color=nextcord.Colour.green()).add_field(name="📥 Input:", value=f"```py\n{execstr}\n```").add_field(name="📤 Output:", value=f"```\nCannot fit the output in this field or in a new embed. Output is saved in './outputs/{filename}`\n```**Return type:** {type(obj)}\n**Time Taken:** {mstaken}ms ({staken}s)").set_footer(text=f"Python {sys.version}"))
+        elif message.content.startswith(p+"system "):
+            execstr = message.content.split(p+"system ", 1)[1]
+            main_message = await message.channel.send("Working on it...")
+            t = time.monotonic()
+            try:
+                vars = {
+                    "system": system,
+                    "execstr": execstr,
+                    "_locals_": locals(),
+                    "_globals_": globals()
+                }
+                await bot.loop.run_in_executor(None, functools.partial(exec, "async def execfunc():\n    return system(execstr)", vars))
+                returned = await vars["execfunc"]()
+                returned_as_str = str(returned)
+                if token.lower() in returned_as_str.lower():
+                    raise errors.BotTokenDetected
+            except Exception as e:
+                obj = e
+                returned = "".join(format_exception(e, e, e.__traceback__))
+                returned_as_str = str(returned)
+            tt = time.monotonic() - t
+            mstaken = round(tt*1000, 2)
+            staken = round(tt, 2)
+            shell_path = system("which $SHELL")
+            shell_version = system(f"{shell_path} --version")
+            try:
+                await main_message.edit("Done!", embed=nextcord.Embed(title=f"Execute System Command by {message.author}", color=nextcord.Colour.green()).add_field(name="📥 Input:", value=f"```sh\n{execstr}\n```").add_field(name="📤 Output:", value=f"```sh\n{returned if ''.join(''.join(returned_as_str.strip().splitlines()).split()) != '' else 'No output.'}\n```**Time Taken:** {mstaken}ms ({staken}s)").set_footer(text=f"{shell_path}: {shell_version.splitlines()[0]}"))
+            except nextcord.errors.HTTPException:
+                try:
+                    await main_message.edit("Done!", embeds=[nextcord.Embed(title=f"Execute System Command by {message.author}", color=nextcord.Colour.green()).add_field(name="📥 Input:", value=f"```sh\n{execstr}\n```").add_field(name="📤 Output:", value=f"```\nCannot fit the output in this field. Check the embed below.\n```**Time Taken:** {mstaken}ms ({staken}s)").set_footer(text=f"{shell_path}: {shell_version.splitlines()[0]}"), nextcord.Embed(title="📤 Output:", description=f"```sh\n{returned if ''.join(''.join(returned_as_str.strip().splitlines()).split()) != '' else 'No output.'}\n```", color = nextcord.Colour.green())])
+                except nextcord.errors.HTTPException:
+                    filename = str(datetime.datetime.now())+".txt"
+                    filename = filename.replace(":", "-")
+                    with open("./outputs/"+filename, "w", encoding="utf-8") as outputfile:
+                        outputfile.write(returned_as_str)
+                    await main_message.edit("Done!", embed=nextcord.Embed(title=f"Execute System Command by {message.author}", color=nextcord.Colour.green()).add_field(name="📥 Input:", value=f"```sh\n{execstr}\n```").add_field(name="📤 Output:", value=f"```\nCannot fit the output in this field or in a new embed. Output is saved in './outputs/{filename}`\n```**Time Taken:** {mstaken}ms ({staken}s)").set_footer(text=f"{shell_path}: {shell_version.splitlines()[0]}"))
 
 if __name__ == "__main__":
     print("\nLoading all cogs...")

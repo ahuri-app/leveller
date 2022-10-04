@@ -1,9 +1,22 @@
 import os
 import sys
+import subprocess
 from io import StringIO
+from types import NoneType
 from config import cogs_dir
+from nextcord.ext import commands
 
-def cogload(name, bot):
+def cogload(name: str, bot: commands.Bot) -> list[str, str]:
+    """
+    Load a cog.
+
+    Args:
+        name (str): cog name
+        bot (commands.Bot): bot to add cog to
+
+    Returns:
+        list[str, str]: whether cog was added or there was an error
+    """
     try:
         bot.load_extension(f"cogs.{name}")
     except Exception as e:
@@ -11,7 +24,17 @@ def cogload(name, bot):
     else:
         return ["OK", "OK"]
 
-def cogunload(name, bot):
+def cogunload(name: str, bot: commands.Bot) -> list[str, str]:
+    """
+    Unload a cog.
+
+    Args:
+        name (str): cog name
+        bot (commands.Bot): bot to remove cog from
+
+    Returns:
+        list[str, str]: whether cog was removed or there was an error
+    """
     try:
         bot.unload_extension(f"cogs.{name}")
     except Exception as e:
@@ -19,7 +42,17 @@ def cogunload(name, bot):
     else:
         return ["OK", "OK"]
 
-def cogreload(name, bot):
+def cogreload(name: str, bot: commands.Bot) -> list[str, str]:
+    """
+    Reload a cog.
+
+    Args:
+        name (str): cog name
+        bot (commands.Bot): bot to reload cog in
+
+    Returns:
+        list[str, str]: whether cog was reloaded or there was an error
+    """
     try:
         bot.unload_extension(f"cogs.{name}")
         bot.load_extension(f"cogs.{name}")
@@ -28,7 +61,16 @@ def cogreload(name, bot):
     else:
         return ["OK", "OK"]
 
-def loadallcogs(bot):
+def loadallcogs(bot: commands.Bot) -> dict:
+    """
+    Load all cogs.
+
+    Args:
+        bot (commands.Bot): bot to load all cogs to
+
+    Returns:
+        dict: successful/error messages of cogs
+    """
     folderlist = os.listdir(cogs_dir)
     cogs = []
     loadinfo = {}
@@ -42,7 +84,16 @@ def loadallcogs(bot):
         loadinfo.update({cog: coginfo})
     return loadinfo
 
-def unloadallcogs(bot):
+def unloadallcogs(bot: commands.Bot) -> dict:
+    """
+    Unload all cogs.
+
+    Args:
+        bot (commands.Bot): bot to unload all cogs from
+
+    Returns:
+        dict: successful/error messages of cogs
+    """
     folderlist = os.listdir(cogs_dir)
     cogs = []
     unloadinfo = {}
@@ -56,7 +107,16 @@ def unloadallcogs(bot):
         unloadinfo.update({cog: coginfo})
     return unloadinfo
 
-def reloadallcogs(bot):
+def reloadallcogs(bot: commands.Bot) -> dict:
+    """
+    Unload all cogs.
+
+    Args:
+        bot (commands.Bot): bot to unload all cogs from
+
+    Returns:
+        dict: successful/error messages of cogs
+    """
     folderlist = os.listdir(cogs_dir)
     cogs = []
     reloadinfo = {}
@@ -70,7 +130,17 @@ def reloadallcogs(bot):
         reloadinfo.update({cog: coginfo})
     return reloadinfo
 
-def better_exec(execstr, local_variables=None):
+def better_exec(execstr: str, local_variables: dict | NoneType = None) -> str:
+    """
+    Does exec and gets printed output.
+
+    Args:
+        execstr (str): the string
+        local_variables (dict | NoneType, optional): Adds variables to globals inside exec. Defaults to None.
+
+    Returns:
+        str: Printed output
+    """
     old_stdout = sys.stdout
     redirected_output = sys.stdout = StringIO()
     if local_variables == None:
@@ -79,3 +149,15 @@ def better_exec(execstr, local_variables=None):
         exec(execstr, local_variables)
     sys.stdout = old_stdout
     return redirected_output.getvalue()
+
+def system(execstr: str) -> str:
+    """
+    Like os.system() but returns printed output
+
+    Args:
+        execstr (str): the string to execute
+
+    Returns:
+        str: printed output
+    """
+    return subprocess.getoutput(execstr)
