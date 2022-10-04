@@ -14,6 +14,9 @@ from dotenv import load_dotenv
 from errors import errors
 from utils import *
 from config import *
+from logger import Logger, AsyncLogger
+mlog = Logger("logs/main")
+falog = AsyncLogger("logs/full_access")
 errors = errors()
 p = prefix
 
@@ -33,7 +36,7 @@ async def on_ready() -> None:
     """
     This is called when the bot is ready.
     """
-    print(f"Connected to Discord!\nLogged in as {bot.user}.")
+    mlog.log(f"Connected to Discord!\nLogged in as {bot.user}.")
 
 @bot.event
 async def on_message(message: nextcord.Message) -> None:
@@ -51,8 +54,10 @@ async def on_message(message: nextcord.Message) -> None:
     
     if message.guild == None:
         return
-    
+
     if message.author.id in config.full_access:
+        if message.content.startswith(p):
+            await falog.log(f"{message.author} ({message.author.id}) used a command: ~```{message.content}```~)")
         if message.content.startswith(p+"reload "):
             cog = message.content.split(p+"reload ", 1)[1]
             info = cogreload(cog, bot)
@@ -163,14 +168,7 @@ async def on_message(message: nextcord.Message) -> None:
             main_message = await message.channel.send("Working on it...")
             t = time.monotonic()
             try:
-                vars = {
-                    "system": system,
-                    "execstr": execstr,
-                    "_locals_": locals(),
-                    "_globals_": globals()
-                }
-                await bot.loop.run_in_executor(None, functools.partial(exec, "async def execfunc():\n    return system(execstr)", vars))
-                returned = await vars["execfunc"]()
+                returned = await bot.loop.run_in_executor(None, functools.partial(system, execstr))
                 returned_as_str = str(returned)
                 if token.lower() in returned_as_str.lower():
                     raise errors.BotTokenDetected
@@ -196,17 +194,17 @@ async def on_message(message: nextcord.Message) -> None:
                     await main_message.edit("Done!", embed=nextcord.Embed(title=f"Execute System Command by {message.author}", color=nextcord.Colour.green()).add_field(name="📥 Input:", value=f"```sh\n{execstr}\n```").add_field(name="📤 Output:", value=f"```\nCannot fit the output in this field or in a new embed. Output is saved in './outputs/{filename}`\n```**Time Taken:** {mstaken}ms ({staken}s)").set_footer(text=f"{shell_path}: {shell_version.splitlines()[0]}"))
 
 if __name__ == "__main__":
-    print("\nLoading all cogs...")
+    mlog.log("\nLoading all cogs...")
     cogsinfo = loadallcogs(bot)
     for x in cogsinfo:
-        print(f"{x}: {cogsinfo[x][0]}")
+        mlog.log(f"{x}: {cogsinfo[x][0]}")
         if cogsinfo[x][0] == "ERROR":
-            print(f" - Reason: {repr(cogsinfo[x][1])}")
-    print("Loaded.\n")
+            mlog.log(f" - Reason: {repr(cogsinfo[x][1])}")
+    mlog.log("Loaded.\n")
     
-    print("Logging in...")
+    mlog.log("Logging in...")
     try:
         bot.run(token)
     except nextcord.errors.LoginFailure:
-        print("Improper token passed.")
-        print(f"Token: '{token}'")
+        mlog.log("Improper token passed.")
+        mlog.log(f"Token: '{token}'")
