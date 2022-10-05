@@ -177,13 +177,13 @@ def blen(string: str) -> int:
 
 def read(file: str) -> any:
     """
-    Reading a file with orjson
+    Reading a file with json
 
     Args:
         file (str): file path
 
     Returns:
-        any: orjson loads ouput of reading file
+        any: json load ouput
     """
     f = open(file, "r")
     read_data = json.load(f)
