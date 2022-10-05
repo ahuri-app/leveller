@@ -1,5 +1,6 @@
 import os
 import sys
+import orjson
 import subprocess
 from io import StringIO
 from types import NoneType
@@ -173,3 +174,34 @@ def blen(string: str) -> int:
         int: length in bytes
     """
     return len(string.encode("utf-8"))
+
+def read(file: str) -> any:
+    """
+    Reading a file with orjson
+
+    Args:
+        file (str): file path
+
+    Returns:
+        any: orjson loads ouput of reading file
+    """
+    f = open(file, "rb")
+    read_data = f.read()
+    f.close()
+    return orjson.loads(read_data)
+
+def write(data: any, file: str) -> int:
+    """
+    Writing a file with orjson
+
+    Args:
+        data (any): data to dump to file with orjson
+        file (str): file path
+
+    Returns:
+        int: bytes written
+    """
+    f = open(file, "wb")
+    bytes_written = f.write(orjson.dumps(data))
+    f.close()
+    return bytes_written
