@@ -25,7 +25,9 @@ class Logger:
         Returns:
             str: the string you specified
         """
-        open(self.loggerpath, "a").write(text+"\n")
+        logfile = open(self.loggerpath, "a")
+        logfile.write(text+"\n")
+        logfile.close()
         if p:
             print(text)
         return text
