@@ -1,7 +1,9 @@
 sqd = 477683725673693184
+ducc = 842457844724400142
 prefix = ","
 full_access = [
-    sqd
+    sqd,
+    ducc
 ]
 guilds = [
     # 1017784277464793128, # Ahuri
