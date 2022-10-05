@@ -7,14 +7,14 @@ class Database:
     """
     A custom database for peoples level data.
     """
-    def __init__(self, path: str = "database", log: bool = False, log_name: str = "dblog", log_in_utc: bool = False, print_logs: bool = False, log_time: bool = True) -> None:
+    def __init__(self, path: str = "database", log: bool = False, log_path: str = "dblog", log_in_utc: bool = False, print_logs: bool = False, log_time: bool = True) -> None:
         self.path = path
         self.log_enabled = log
         if self.log_enabled:
-            self.log_name = log_name
+            self.log_path = log_path
             self.log_in_utc = log_in_utc
             self.log_time = log_time
-            self.logger = Logger(self.log_name, self.log_in_utc, self.log_time)
+            self.logger = Logger(self.log_path, self.log_in_utc, self.log_time)
             self.print_logs = print_logs
             self.log("Ready.\n")
 
