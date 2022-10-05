@@ -27,9 +27,10 @@ class Logger:
         """
         A class that contains info for a log.
         """
-        def __init__(self, time: datetime, text: str, strtime: str, utc: bool, logger: Logger) -> None:
+        def __init__(self, time: datetime, text: str, rawtext: str, strtime: str, utc: bool, logger: Logger) -> None:
             self.time = time
             self.text = text
+            self.rawtext = rawtext
             self.strtime = strtime
             self.utc = utc
             self.logger = logger
@@ -53,12 +54,17 @@ class Logger:
             else:
                 now = datetime.now()
                 strnow = str(now)
-            to_log = strnow + to_log
+            lines = to_log.splitlines(keepends=True)
+            line = []
+            num = -1
+            for x in lines:
+                line.append("[" + strnow + "] " + x)
+            to_log = "".join(line)
         logfile = open(self.loggerpath, "a")
         logfile.write(to_log)
         logfile.close()
         if p:
-            print(text)
-        log = self.Log(now, text, strnow, self.utc, self)
+            print(to_log)
+        log = self.Log(now, to_log, text, strnow, self.utc, self)
         self.logs.append(log)
         return log
