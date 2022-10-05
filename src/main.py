@@ -1,6 +1,10 @@
 # ahuri helper
+from re import I
+from logger import Logger
+mlog = Logger("logs/main")
+falog = Logger("logs/full_access")
 if __name__ == "__main__":
-    print("Loading...")
+    mlog.log("Loading...")
 import os
 import nextcord
 import config
@@ -8,15 +12,17 @@ import textwrap
 import time
 import functools
 import datetime
+import utils
+import database
+import logger
 from traceback import format_exception
 from nextcord.ext import commands
 from dotenv import load_dotenv
 from errors import errors
 from utils import *
 from config import *
-from logger import Logger, AsyncLogger
-mlog = Logger("logs/main")
-falog = AsyncLogger("logs/full_access")
+from database import Database
+db = Database(log=True, log_path="logs/dblog")
 errors = errors()
 p = prefix
 
@@ -54,10 +60,17 @@ async def on_message(message: nextcord.Message) -> None:
     
     if message.guild == None:
         return
+    
+    db.auto(message.content, message.author.id, message.guild.id)
+
+    if message.content == p+"bytes":
+        bytes = db.check_bytes(message.author.id, message.guild.id)
+        cbytes = db.auto_calc(bytes)
+        await message.reply(f"You currently have chatted {bytes} bytes worth. (That's {cbytes[0]} {cbytes[1]}!)")
 
     if message.author.id in config.full_access:
         if message.content.startswith(p):
-            await falog.log(f"{message.author} ({message.author.id}) used a command: ~```{message.content}```~)")
+            falog.log(f"{message.author} ({message.author.id}) used a command: ~```{message.content}```~)")
         if message.content.startswith(p+"reload "):
             cog = message.content.split(p+"reload ", 1)[1]
             info = cogreload(cog, bot)
@@ -104,7 +117,7 @@ async def on_message(message: nextcord.Message) -> None:
                 if token.lower() in returned_as_str.lower():
                     raise errors.BotTokenDetected
             except Exception as e:
-                returned = "".join(format_exception(e, e, e.__traceback__))
+                returned = exc(e)
                 returned_as_str = str(returned)
             tt = time.monotonic() - t
             mstaken = round(tt*1000, 2)
@@ -132,6 +145,11 @@ async def on_message(message: nextcord.Message) -> None:
                 "bot": bot,
                 "message": message,
                 "main_message": main_message,
+                "blen": blen,
+                "utils": utils,
+                "database": database,
+                "logger": logger,
+                "config": config,
                 "_locals_": locals(),
                 "_globals_": globals()
             }
@@ -147,7 +165,7 @@ async def on_message(message: nextcord.Message) -> None:
                     raise errors.BotTokenDetected
             except Exception as e:
                 obj = e
-                returned = "".join(format_exception(e, e, e.__traceback__))
+                returned = exc(e)
                 returned_as_str = str(returned)
             tt = time.monotonic() - t
             mstaken = round(tt*1000, 2)
@@ -174,7 +192,7 @@ async def on_message(message: nextcord.Message) -> None:
                     raise errors.BotTokenDetected
             except Exception as e:
                 obj = e
-                returned = "".join(format_exception(e, e, e.__traceback__))
+                returned = exc(e)
                 returned_as_str = str(returned)
             tt = time.monotonic() - t
             mstaken = round(tt*1000, 2)
