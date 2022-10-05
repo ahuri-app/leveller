@@ -11,9 +11,10 @@ class Logger:
         self.utc = utc
         self.log_time = log_time
         if self.utc:
-            self.loggerpath = os.path.join(self.path, str(datetime.utcnow())+".txt")
+            self.created_at = datetime.utcnow()
         else:
-            self.loggerpath = os.path.join(self.path, str(datetime.now())+".txt")
+            self.created_at = datetime.now()
+        self.loggerpath = os.path.join(self.path, str(self.created_at)+".txt")
         self.logs = []
 
     def __str__(self) -> str:
