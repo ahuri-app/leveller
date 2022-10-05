@@ -14,7 +14,7 @@ class Logger:
             self.created_at = datetime.utcnow()
         else:
             self.created_at = datetime.now()
-        self.loggerpath = os.path.join(self.path, str(self.created_at)+".txt")
+        self.loggerpath = os.path.join(self.path, str(self.created_at).replace(":", "-")+".txt")
         self.logs = []
 
     def __str__(self) -> str:
@@ -56,7 +56,6 @@ class Logger:
                 strnow = str(now)
             lines = to_log.splitlines(keepends=True)
             line = []
-            num = -1
             for x in lines:
                 line.append("[" + strnow + "] " + x)
             to_log = "".join(line)
