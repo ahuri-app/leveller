@@ -1,6 +1,6 @@
+from __future__ import annotations
 import os
 from datetime import datetime
-from __future__ import annotations
 
 class Logger:
     """
