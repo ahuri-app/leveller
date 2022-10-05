@@ -6,6 +6,9 @@ from io import StringIO
 from types import NoneType
 from config import cogs_dir
 from nextcord.ext import commands
+from traceback import format_exception
+
+exc = lambda e: "".join(format_exception(e, e, e.__traceback__))
 
 def cogload(name: str, bot: commands.Bot) -> list[str, str]:
     """
