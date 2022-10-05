@@ -1,6 +1,6 @@
 import os
 import sys
-import orjson
+import json
 import subprocess
 from io import StringIO
 from types import NoneType
@@ -185,23 +185,19 @@ def read(file: str) -> any:
     Returns:
         any: orjson loads ouput of reading file
     """
-    f = open(file, "rb")
-    read_data = f.read()
+    f = open(file, "r")
+    read_data = json.load(f)
     f.close()
-    return orjson.loads(read_data)
+    return read_data
 
-def write(data: any, file: str) -> int:
+def write(data: any, file: str) -> None:
     """
-    Writing a file with orjson
+    Writing a file with python's json module
 
     Args:
         data (any): data to dump to file with orjson
         file (str): file path
-
-    Returns:
-        int: bytes written
     """
-    f = open(file, "wb")
-    bytes_written = f.write(orjson.dumps(data))
+    f = open(file, "w")
+    json.dump(data, f, sort_keys=True, indent=4)
     f.close()
-    return bytes_written

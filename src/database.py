@@ -1,5 +1,5 @@
 import os
-from utils import blen
+from utils import blen, read, write
 
 class Database:
     """
@@ -47,7 +47,7 @@ class Database:
         if id in os.listdir(os.path.join(self.path, guild)):
             return False
         else:
-            open(os.path.join(self.path, guild, id), "w").write("0")
+            write(0, os.path.join(self.path, guild, id))
             return True
     
     def add_bytes(self, bytes: int, id: int | str, guild: int | str) -> int:
@@ -64,10 +64,10 @@ class Database:
         """
         id = str(id)
         guild = str(guild)
-        user = open(os.path.join(self.path, guild, id), "w+")
-        current_bytes = int(user.read())
+        path = os.path.join(self.path, guild, id)
+        current_bytes = read(path)
         total = current_bytes + bytes
-        user.write(str(total))
+        write(total, path)
         return total
     
     def check_bytes(self, id: int | str, guild: int | str) -> int:
@@ -83,7 +83,8 @@ class Database:
         """
         id = str(id)
         guild = str(guild)
-        return int(open(os.path.join(self.path, guild, id), "r").read())
+        bytes = read(os.path.join(self.path, guild, id))
+        return bytes
     
     def calc_KiB(self, bytes: int) -> int:
         """
