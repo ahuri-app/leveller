@@ -10,11 +10,6 @@ class about(commands.Cog):
     
     @slash_command(name="about", description="About the bot!", guild_ids=guilds)
     async def about(self, interaction: nextcord.Interaction):
-        bot = self.bot
-        try:
-            cavatar = bot.user.avatar.url
-        except:
-            cavatar = bot.user.default_avatar.url
         embed = nextcord.Embed(
             title="About",
             description=f"""
