@@ -56,7 +56,8 @@ class level(commands.Cog):
             name = f"Stats of {name}",
             icon_url = pfp
         )
-        embed.set_footer(text = f"That's {bytes} bytes!")
+        if cbytes[1] != "B":
+            embed.set_footer(text = f"That's {bytes} bytes!")
         await interaction.response.send_message(embed=embed, ephemeral=False)
 
 def setup(bot: commands.Bot, **kwargs) -> None:
