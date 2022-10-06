@@ -8,6 +8,7 @@ full_access = [
 guilds = [
     # 1017784277464793128, # Ahuri
     1020630090054381588, # Ahuri Internal
+    1027575115409530920, # spooky's server
 ]
 
 cogs_dir = "src/cogs/"

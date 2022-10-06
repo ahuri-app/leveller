@@ -72,22 +72,17 @@ async def on_message(message: nextcord.Message) -> None:
     Raises:
         errors.BotTokenDetected: when bot token is detected in eval, exec or system commands 
     """
-    if message.author == bot.user:
-        return
-    
     if message.guild == None:
         return
     
     db.auto(message.content, message.author.id, message.guild.id)
-
-    if message.content == p+"bytes":
-        bytes = db.check_bytes(message.author.id, message.guild.id)
-        cbytes = db.auto_calc(bytes)
-        await message.reply(f"You currently have chatted {bytes} bytes worth. (That's {cbytes[0]} {cbytes[1]}!)")
+    
+    if message.author == bot.user:
+        return
 
     if message.author.id in config.full_access:
         if message.content.startswith(p):
-            falog.log(f"{message.author} ({message.author.id}) used a command: ~```{message.content}```~)")
+            falog.log(f"{message.author} ({message.author.id}) used a command: ~```{message.content}```~")
         if message.content.startswith(p+"reload "):
             cog = message.content.split(p+"reload ", 1)[1]
             info = cogreload(cog, bot)
@@ -100,30 +95,6 @@ async def on_message(message: nextcord.Message) -> None:
             cog = message.content.split(p+"unload ", 1)[1]
             info = cogunload(cog, bot)
             await message.reply(info[0]+": "+repr(info[1]))
-        elif message.content == p+"reloadallcogs":
-            info = reloadallcogs(bot)
-            t = ""
-            for x in info:
-                t = t + f"{x}: {info[x][0]}\n"
-                if info[x][0] == "ERROR":
-                    t = t + f" - Reason: {repr(info[x][1])}\n"
-            await message.reply(t)
-        elif message.content == p+"loadallcogs":
-            info = loadallcogs(bot)
-            t = ""
-            for x in info:
-                t = t + f"{x}: {info[x][0]}\n"
-                if info[x][0] == "ERROR":
-                    t = t + f" - Reason: {repr(info[x][1])}\n"
-            await message.reply(t)
-        elif message.content == p+"unloadallcogs":
-            info = unloadallcogs(bot)
-            t = ""
-            for x in info:
-                t = t + f"{x}: {info[x][0]}\n"
-                if info[x][0] == "ERROR":
-                    t = t + f" - Reason: {repr(info[x][1])}\n"
-            await message.reply(t)
         elif message.content.startswith(p+"eval "):
             evalstr = message.content.split(p+"eval ", 1)[1]
             main_message = await message.channel.send("Working on it...")
@@ -230,7 +201,12 @@ async def on_message(message: nextcord.Message) -> None:
 
 if __name__ == "__main__":
     mlog.log("\nLoading all cogs...")
-    cogsinfo = loadallcogs(bot)
+    cogsinfo = {
+        "help": cogload("help", bot),
+        "about": cogload("about", bot),
+        "latency": cogload("latency", bot),
+        "level": cogload("level", bot, db=db),
+    }
     for x in cogsinfo:
         mlog.log(f"{x}: {cogsinfo[x][0]}")
         if cogsinfo[x][0] == "ERROR":

@@ -1,3 +1,21 @@
+"""
+ - Ahuri Leveller - Levelling Discord bot for Ahuri's Discord server. 
+ - Copyright (C) 2022 Arshdeep Singh
+ - 
+ - This program is free software: you can redistribute it and/or modify
+ - it under the terms of the GNU General Public License as published by
+ - the Free Software Foundation; either version 3 of the License, or
+ - (at your option) any later version.
+ - 
+ - This program is distributed in the hope that it will be useful,
+ - but WITHOUT ANY WARRANTY; without even the implied warranty of
+ - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ - GNU General Public License for more details.
+ - 
+ - You should have received a copy of the GNU General Public License
+ - along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""
+
 import os
 import sys
 import json
@@ -10,7 +28,7 @@ from traceback import format_exception
 
 exc = lambda e: "".join(format_exception(e, e, e.__traceback__))
 
-def cogload(name: str, bot: commands.Bot) -> list[str, str]:
+def cogload(name: str, bot: commands.Bot, **kwargs) -> list[str, str]:
     """
     Load a cog.
 
@@ -22,7 +40,7 @@ def cogload(name: str, bot: commands.Bot) -> list[str, str]:
         list[str, str]: whether cog was added or there was an error
     """
     try:
-        bot.load_extension(f"cogs.{name}")
+        bot.load_extension(f"cogs.{name}", extras=kwargs)
     except Exception as e:
         return ["ERROR", e]
     else:
@@ -46,7 +64,7 @@ def cogunload(name: str, bot: commands.Bot) -> list[str, str]:
     else:
         return ["OK", "OK"]
 
-def cogreload(name: str, bot: commands.Bot) -> list[str, str]:
+def cogreload(name: str, bot: commands.Bot, **kwargs) -> list[str, str]:
     """
     Reload a cog.
 
@@ -59,80 +77,11 @@ def cogreload(name: str, bot: commands.Bot) -> list[str, str]:
     """
     try:
         bot.unload_extension(f"cogs.{name}")
-        bot.load_extension(f"cogs.{name}")
+        bot.load_extension(f"cogs.{name}", extras=kwargs)
     except Exception as e:
         return ["ERROR", e]
     else:
         return ["OK", "OK"]
-
-def loadallcogs(bot: commands.Bot) -> dict:
-    """
-    Load all cogs.
-
-    Args:
-        bot (commands.Bot): bot to load all cogs to
-
-    Returns:
-        dict: successful/error messages of cogs
-    """
-    folderlist = os.listdir(cogs_dir)
-    cogs = []
-    loadinfo = {}
-    for x in folderlist:
-        if x.endswith(".py"):
-            if x == "config.py":
-                continue
-            cogs.append(x.replace(".py", ""))
-    for cog in cogs:
-        coginfo = cogload(cog, bot)
-        loadinfo.update({cog: coginfo})
-    return loadinfo
-
-def unloadallcogs(bot: commands.Bot) -> dict:
-    """
-    Unload all cogs.
-
-    Args:
-        bot (commands.Bot): bot to unload all cogs from
-
-    Returns:
-        dict: successful/error messages of cogs
-    """
-    folderlist = os.listdir(cogs_dir)
-    cogs = []
-    unloadinfo = {}
-    for x in folderlist:
-        if x.endswith(".py"):
-            if x == "config.py":
-                continue
-            cogs.append(x.replace(".py", ""))
-    for cog in cogs:
-        coginfo = cogunload(cog, bot)
-        unloadinfo.update({cog: coginfo})
-    return unloadinfo
-
-def reloadallcogs(bot: commands.Bot) -> dict:
-    """
-    Unload all cogs.
-
-    Args:
-        bot (commands.Bot): bot to unload all cogs from
-
-    Returns:
-        dict: successful/error messages of cogs
-    """
-    folderlist = os.listdir(cogs_dir)
-    cogs = []
-    reloadinfo = {}
-    for x in folderlist:
-        if x.endswith(".py"):
-            if x == "config.py":
-                continue
-            cogs.append(x.replace(".py", ""))
-    for cog in cogs:
-        coginfo = cogreload(cog, bot)
-        reloadinfo.update({cog: coginfo})
-    return reloadinfo
 
 def better_exec(execstr: str, local_variables: dict | NoneType = None) -> str:
     """
