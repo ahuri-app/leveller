@@ -1,5 +1,5 @@
 # Ahuri's Level Bot
-<img src="https://img.shields.io/badge/license-MIT-green">
+![License](https://img.shields.io/static/v1?label=license&message=GNU%20GPLv3&style=flat&color=green)
 
 ## This bot is currently in development and is **not** finished.
 
